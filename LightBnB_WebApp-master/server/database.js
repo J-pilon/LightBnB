@@ -152,14 +152,8 @@ exports.getAllReservations = getAllReservations;
   ORDER BY cost_per_night
   LIMIT $${queryParams.length};`;
 
-  console.log("queryParams", queryParams);
-  console.log("queryString", queryString);
-
-
   return pool.query(queryString, queryParams)
-  .then(res => res.rows
-    // console.log("$$$$", res.rows);
-    )
+  .then(res => res.rows)
   .catch(err => {console.log(err)});
 }
 exports.getAllProperties = getAllProperties;
@@ -171,29 +165,33 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
+  console.log("####", property);
   const { owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, street, city, province, post_code, country, parking_spaces, number_of_bathrooms, number_of_bedrooms } = property;
 
   pool.query(`
     INSERT INTO properties (
-      owner_id = $1
-      title = $2
-      description = $3
-      thumbnail_photo_url = $4
-      cover_photo_url = $5
-      cost_per_night = $6
-      parking_spaces = $7
-      number_of_bathrooms = $8
-      number_of_bedrooms = $9
-      country = $10
-      street = $11
-      city = $12
-      province = $13
-      post_code = $14
-    )
-    VALUES ()
-  `, [owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, parking_spaces, number_of_bathrooms, number_of_bedrooms, country, street, city, province, 
-  post_code])
-    .then(res => res.rows)
+      title, 
+      description, 
+      owner_id, 
+      cover_photo_url, 
+      thumbnail_photo_url, 
+      cost_per_night, 
+      parking_spaces, 
+      number_of_bathrooms, 
+      number_of_bedrooms, 
+      active, 
+      province, 
+      city, 
+      country, 
+      street, 
+      post_code)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+    RETURNING *;
+  `, [title, description, owner_id, cover_photo_url, thumbnail_photo_url, cost_per_night, parking_spaces, number_of_bathrooms, number_of_bedrooms, true, province, city, country, street, post_code])
+    .then(res => {
+      res.rows[0];
+      console.log("@@@@@", res.rows);
+    })
     .catch(err => console.log(err))
 }
 exports.addProperty = addProperty;
