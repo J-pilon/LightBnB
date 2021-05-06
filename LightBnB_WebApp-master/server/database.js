@@ -18,13 +18,12 @@ const pool = new Pool({
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithEmail = function(email) {
-  console.log("11111111");
   return pool.query(`
-  SELECT * FROM users WHERE email = $1;
+  SELECT id, name, email, password FROM users WHERE email = $1;
   `, [email])
     .then(res => {
-      console.log("res.rows1 ",res.rows); 
-      return res.rows;
+      console.log("res.rows1 ",res.rows[0]); 
+      return res.rows[0];
 
     })
     .catch(err => {
@@ -39,10 +38,9 @@ exports.getUserWithEmail = getUserWithEmail;
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithId = function(id) {
-  console.log("22222");
 
   return pool.query(`
-  SELECT * FROM users WHERE id = $1;
+  SELECT id, name, email, password FROM users WHERE id = $1;
   `, [email])
     .then(res => {
       console.log("res.rows2 ",res.rows); 
@@ -69,6 +67,7 @@ const addUser =  function(user) {
     RETURNING *;
   `,[name, email, password])
     .then(res => {
+      console.log("##### ", res.rows);
       return res.rows;
     })
     .catch(err => {
@@ -115,7 +114,7 @@ exports.getAllReservations = getAllReservations;
  */
  const getAllProperties = function(options, limit = 10) {
   const queryParams = [];
-  const queryString = `
+  let queryString = `
       SELECT properties.*, avg(property_reviews.rating) as average_rating
       FROM properties
       JOIN property_reviews ON properties.id = property_id
